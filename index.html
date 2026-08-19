@@ -1,0 +1,1979 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Code Stats</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-soft: #07130c;
+      --panel: #0b140e;
+      --panel-2: #101d14;
+      --line: rgba(139, 255, 177, 0.2);
+      --green: #7ef9a6;
+      --green-2: #a7f3d0;
+      --green-3: #4ade80;
+      --text: #eefcf4;
+      --muted: #b7d8c0;
+      --danger: #ff7a7a;
+      --warning: #f8d76b;
+      --shadow: 0 12px 25px rgba(0, 0, 0, 0.45);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body {
+      padding: 24px;
+    }
+
+    .hidden { display: none !important; }
+
+    .landing {
+      max-width: 980px;
+      margin: 42px auto;
+      background: rgba(10, 16, 12, 0.94);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
+      padding: 24px;
+    }
+
+    .landing-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--green);
+      font-size: clamp(2rem, 4vw, 3rem);
+      letter-spacing: 0.05em;
+    }
+
+    .status {
+      border: 1px solid var(--green);
+      background: rgba(126, 249, 166, 0.08);
+      color: var(--green-2);
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .landing-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+    }
+
+    .profile-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(126, 249, 166, 0.04);
+    }
+
+    .profile-banner strong {
+      color: var(--green-2);
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .profile-banner span {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .panel {
+      background: rgba(14, 22, 17, 0.9);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .profile-card {
+      display: grid;
+      gap: 16px;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--green), var(--green-3));
+      color: #031109;
+      font-weight: 800;
+      overflow: hidden;
+      border: 1px solid rgba(126, 249, 166, 0.45);
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .profile-meta {
+      display: grid;
+      gap: 4px;
+    }
+
+    .profile-meta strong {
+      font-size: 1.05rem;
+      color: var(--green-2);
+    }
+
+    .profile-meta span {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(70px, 1fr));
+      gap: 10px;
+    }
+
+    .profile-stat {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(126, 249, 166, 0.04);
+      display: grid;
+      gap: 4px;
+      text-align: center;
+    }
+
+    .profile-stat strong {
+      color: var(--green-2);
+      font-size: 1.05rem;
+    }
+
+    .profile-stat span {
+      color: var(--muted);
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .profile-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .profile-editor {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .profile-editor.hidden {
+      display: none;
+    }
+
+    .profile-editor input,
+    .profile-editor textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(126, 249, 166, 0.04);
+      color: var(--text);
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    .profile-editor textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .profile-image-wrap {
+      display: grid;
+      gap: 8px;
+    }
+
+    .profile-image-wrap input {
+      padding: 8px;
+    }
+
+    .profile-editor-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toast-container {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      display: grid;
+      gap: 10px;
+      z-index: 2000;
+    }
+
+    .toast {
+      min-width: 220px;
+      max-width: 320px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(16, 29, 20, 0.96);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(12px);
+      animation: toastIn 0.2s ease forwards;
+    }
+
+    .toast.success {
+      border-color: rgba(126, 249, 166, 0.65);
+      color: var(--green-2);
+    }
+
+    .toast.error {
+      border-color: rgba(255, 122, 122, 0.6);
+      color: #ffd3d3;
+    }
+
+    @keyframes toastIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .mini-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .saved-project-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(126, 249, 166, 0.03);
+      overflow: hidden;
+    }
+
+    .saved-project-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .saved-project-button {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      padding: 12px 14px;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .saved-project-button strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--green-2);
+      font-size: 0.96rem;
+    }
+
+    .saved-project-button span {
+      color: var(--muted);
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .delete-project-btn {
+      border: 1px solid rgba(255, 122, 122, 0.38);
+      background: rgba(255, 122, 122, 0.08);
+      color: #ffd3d3;
+      padding: 8px 10px;
+      min-width: 40px;
+      font-size: 0.76rem;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 320px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #040d07;
+      color: var(--text);
+      padding: 14px;
+      font-size: 0.9rem;
+      font-family: Consolas, monospace;
+      resize: vertical;
+    }
+
+    .file-input {
+      width: 100%;
+      margin-top: 10px;
+      color: var(--green-2);
+    }
+
+    .folder-input {
+      width: 100%;
+      margin-top: 10px;
+      color: var(--green-2);
+      background: rgba(126, 249, 166, 0.04);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .landing-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 0.9rem 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green), var(--green-3));
+      color: #031109;
+    }
+
+    .btn-secondary {
+      background: rgba(126, 249, 166, 0.08);
+      border: 1px solid var(--line);
+      color: var(--green-2);
+    }
+
+    .app {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .sidebar, .main-panel {
+      background: rgba(11, 20, 14, 0.96);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar {
+      padding: 14px 12px;
+    }
+
+    .brand {
+      padding: 8px 10px 14px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 14px;
+    }
+
+    .brand-text {
+      color: var(--green);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+    }
+
+    .file-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .file-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(126, 249, 166, 0.04);
+      overflow: hidden;
+    }
+
+    .file-item.active {
+      border-color: var(--green);
+      background: rgba(126, 249, 166, 0.08);
+    }
+
+    .file-item button {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      padding: 12px 12px 10px;
+      font: inherit;
+    }
+
+    .file-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .file-name {
+      font-weight: 700;
+      color: var(--green-2);
+    }
+
+    .file-tag {
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: rgba(126, 249, 166, 0.08);
+      border: 1px solid var(--line);
+      color: var(--green);
+    }
+
+    .file-tag.dao { color: var(--warning); }
+    .file-tag.db { color: var(--green-2); }
+
+    .file-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .main-panel {
+      padding: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+
+    .title-wrap h2 {
+      margin: 0;
+      font-size: clamp(1.5rem, 2.5vw, 2.3rem);
+      color: var(--green);
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: rgba(126, 249, 166, 0.04);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 12px;
+    }
+
+    .stat-card h3 {
+      margin: 0 0 12px;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .stat-value {
+      margin: 0;
+      font-size: clamp(1.5rem, 2vw, 2.1rem);
+      font-weight: 700;
+      color: var(--green-2);
+    }
+
+    .menu-section {
+      margin-top: 24px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      margin-bottom: 8px;
+    }
+
+    .menu-header h2 {
+      margin: 0;
+      font-size: clamp(1.6rem, 3vw, 2.3rem);
+      color: var(--text);
+    }
+
+    .level-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .level-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(16, 29, 20, 0.9);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 220px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .level-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(126, 249, 166, 0.5);
+    }
+
+    .level-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .level-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--green-2);
+    }
+
+    .level-badge {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(126, 249, 166, 0.08);
+      color: var(--green);
+      font-size: 0.68rem;
+      padding: 6px 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .level-card ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .level-card li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .level-card li::before {
+      content: '•';
+      color: var(--green);
+      font-size: 1.2rem;
+    }
+
+    .level-card button {
+      margin-top: auto;
+      width: 100%;
+      background: linear-gradient(135deg, var(--green), var(--green-3));
+      color: #04160c;
+    }
+
+    .challenge-panel {
+      margin-top: 22px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(12, 20, 15, 0.96);
+      padding: 18px;
+    }
+
+    .challenge-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .challenge-header h3 {
+      margin: 0;
+      color: var(--green-2);
+      font-size: 1.2rem;
+    }
+
+    .challenge-score {
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .challenge-description {
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    .challenge-editor {
+      width: 100%;
+      min-height: 210px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #040d07;
+      color: var(--text);
+      padding: 14px;
+      font-size: 0.9rem;
+      font-family: Consolas, monospace;
+      resize: vertical;
+    }
+
+    .challenge-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .challenge-result {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(126, 249, 166, 0.06);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      min-height: 48px;
+      line-height: 1.5;
+    }
+
+    .repo-form {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .repo-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: rgba(126, 249, 166, 0.04);
+      color: var(--text);
+      font: inherit;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .progress-panel {
+      display: grid;
+      gap: 18px;
+      background: rgba(12, 20, 15, 0.96);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .progress-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(140px, 1fr));
+      gap: 14px;
+    }
+
+    .progress-card {
+      background: rgba(126, 249, 166, 0.04);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 12px;
+    }
+
+    .progress-card h3 {
+      margin: 0 0 10px;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .progress-card strong {
+      color: var(--green-2);
+      font-size: clamp(1.5rem, 2vw, 2.1rem);
+    }
+
+    .code-panel {
+      background: #040d07;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(126, 249, 166, 0.04);
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .code-name, .error-title {
+      color: var(--green-2);
+      font-weight: 700;
+    }
+
+    .code-lines {
+      max-height: 70vh;
+      overflow: auto;
+      padding: 0;
+      font-family: Consolas, monospace;
+      font-size: 0.87rem;
+      line-height: 1.65;
+      background: #020b06;
+    }
+
+    .code-row {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      border-bottom: 1px solid rgba(126, 249, 166, 0.04);
+    }
+
+    .code-row.error {
+      background: rgba(255, 122, 122, 0.08);
+      border-left: 3px solid var(--danger);
+    }
+
+    .line-no {
+      padding: 0 10px;
+      text-align: right;
+      color: var(--muted);
+      background: rgba(126, 249, 166, 0.03);
+      border-right: 1px solid rgba(126, 249, 166, 0.08);
+    }
+
+    .line-code {
+      white-space: pre-wrap;
+      padding: 0 12px;
+      color: var(--text);
+    }
+
+
+    @media (max-width: 980px) {
+      .landing-grid,
+      .content-grid,
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="landingView" class="landing">
+    <div class="landing-header">
+      <h1>Code Stats</h1>
+      <div class="status">Análise ao vivo</div>
+    </div>
+
+    <div class="profile-banner">
+      <strong>Perfil do dev</strong>
+      <span>Nível 3 • Progresso ativo</span>
+    </div>
+
+    <div class="landing-grid">
+      <div class="panel">
+        <label class="label" for="codeInput">Cole o código do projeto</label>
+        <textarea id="codeInput" placeholder="Cole aqui o conteúdo do arquivo Java, SQL ou outro código do seu projeto..."></textarea>
+
+        <label class="label" for="folderInput">Selecione a pasta inteira do projeto</label>
+        <input id="folderInput" class="folder-input" type="file" webkitdirectory directory multiple />
+
+        <div class="repo-form">
+          <label class="label" for="repoInput">Clonar repositório GitHub</label>
+          <input id="repoInput" class="repo-input" type="text" placeholder="https://github.com/usuario/repositorio" />
+          <button class="btn-secondary" id="cloneRepoBtn" type="button">Clonar repositório</button>
+        </div>
+
+        <div class="landing-actions">
+          <button class="btn-primary" id="openDashboardBtn">Abrir dashboard</button>
+          <button class="btn-secondary" id="loadExampleBtn" type="button">Usar exemplo</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="avatar" id="profileAvatar">DV</div>
+            <div class="profile-meta">
+              <strong id="profileDisplayName">Dev V</strong>
+              <span id="profileDisplayTitle">Front-end • Estudante</span>
+            </div>
+          </div>
+
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <strong id="profileProjects">0</strong>
+              <span>Projetos</span>
+            </div>
+            <div class="profile-stat">
+              <strong id="profileChallenges">0</strong>
+              <span>Desafios</span>
+            </div>
+            <div class="profile-stat">
+              <strong id="profileStreak">0</strong>
+              <span>Streak</span>
+            </div>
+          </div>
+
+          <div class="profile-actions">
+            <button class="btn-primary" id="openProfileEditorBtn" type="button">Meu perfil</button>
+            <button class="btn-secondary" id="profileProgressBtn" type="button">Progresso</button>
+          </div>
+        </div>
+
+        <div id="profileEditor" class="profile-editor hidden">
+          <label class="label" for="profileNameInput">Seu nome</label>
+          <input id="profileNameInput" type="text" placeholder="Digite seu nome" maxlength="30" />
+
+          <label class="label" for="profileTitleInput">Especialidade</label>
+          <input id="profileTitleInput" type="text" placeholder="Ex.: Java • Backend" maxlength="40" />
+
+          <label class="label" for="profileStackInput">Stack</label>
+          <input id="profileStackInput" type="text" placeholder="Ex.: Java, Spring, SQL" maxlength="60" />
+
+          <label class="label" for="profileBioInput">Bio</label>
+          <textarea id="profileBioInput" placeholder="Escreva um pouco sobre você..." maxlength="180"></textarea>
+
+          <div class="profile-image-wrap">
+            <label class="label" for="profilePhotoInput">Foto de perfil</label>
+            <input id="profilePhotoInput" type="file" accept="image/*" />
+          </div>
+
+          <div class="profile-editor-actions">
+            <button class="btn-primary" id="saveProfileBtn" type="button">Salvar perfil</button>
+            <button class="btn-secondary" id="closeProfileEditorBtn" type="button">Fechar</button>
+            <button class="btn-secondary" id="backToHomeBtn" type="button">Voltar ao início</button>
+          </div>
+        </div>
+
+        <div style="height: 1px; background: rgba(126, 249, 166, 0.12); margin: 16px 0;"></div>
+
+        <label class="label">Projetos salvos</label>
+        <ul class="mini-list" id="savedProjectsList"></ul>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-header">
+        <div>
+          <span class="eyebrow">Treino</span>
+          <h2>Menu inicial</h2>
+        </div>
+        <button class="btn-secondary" id="openProgressBtn" type="button">Progresso</button>
+      </div>
+
+      <div id="levelGrid" class="level-grid"></div>
+
+      <div id="challengePanel" class="challenge-panel hidden">
+        <div class="challenge-header">
+          <h3 id="challengeTitle">Desafio</h3>
+          <span id="challengeScore" class="challenge-score">0/0</span>
+        </div>
+
+        <div id="challengeDescription" class="challenge-description"></div>
+        <textarea id="challengeCode" class="challenge-editor" spellcheck="false"></textarea>
+
+        <div class="challenge-actions">
+          <button class="btn-secondary" id="backToLevelsBtn" type="button">Voltar ao menu</button>
+          <button class="btn-primary" id="runChallengeBtn" type="button">Executar código</button>
+        </div>
+
+        <div id="challengeResult" class="challenge-result">Digite seu código e execute para validar.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashboardView" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-text">Code Stats</div>
+      </div>
+      <ul class="file-list" id="fileList"></ul>
+    </aside>
+
+    <main class="main-panel">
+      <div class="topbar">
+        <div class="title-wrap">
+          <h2 id="projectOwnerHeader">Dashboard de análise</h2>
+          <div class="subtitle" id="projectOwnerSubtitle">Projeto salvo, arquivos e código em foco</div>
+        </div>
+        <button class="btn-secondary" id="backToInputBtn" type="button">Voltar</button>
+      </div>
+
+      <section class="stats">
+        <div class="stat-card">
+          <h3>Arquivos</h3>
+          <p class="stat-value" id="totalFiles">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Caract.</h3>
+          <p class="stat-value" id="charTotal">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Linhas</h3>
+          <p class="stat-value" id="lineCount">0</p>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <div class="code-panel">
+          <div class="code-header">
+            <span class="code-name" id="selectedFileName">Arquivo</span>
+            <span id="lastUpdated">--</span>
+          </div>
+          <div id="codeViewer" class="code-lines"></div>
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <div id="progressView" class="landing hidden">
+    <div class="landing-header">
+      <h1>Progresso</h1>
+      <div class="status">Desempenho</div>
+    </div>
+
+    <div class="progress-panel">
+      <div class="progress-grid">
+        <div class="progress-card">
+          <h3>Projetos</h3>
+          <strong id="progressProjects">0</strong>
+        </div>
+        <div class="progress-card">
+          <h3>Desafios</h3>
+          <strong id="progressChallenges">0</strong>
+        </div>
+        <div class="progress-card">
+          <h3>Streak</h3>
+          <strong id="progressStreak">0</strong>
+        </div>
+      </div>
+
+      <div class="landing-actions">
+        <button class="btn-primary" id="progressBackHomeBtn" type="button">Voltar ao início</button>
+        <button class="btn-secondary" id="progressOpenDashboardBtn" type="button">Abrir dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script>
+    const landingView = document.getElementById('landingView');
+    const dashboardView = document.getElementById('dashboardView');
+    const progressView = document.getElementById('progressView');
+    const textarea = document.getElementById('codeInput');
+    const folderInput = document.getElementById('folderInput');
+    const openDashboardBtn = document.getElementById('openDashboardBtn');
+    const loadExampleBtn = document.getElementById('loadExampleBtn');
+    const backToInputBtn = document.getElementById('backToInputBtn');
+    const repoInput = document.getElementById('repoInput');
+    const cloneRepoBtn = document.getElementById('cloneRepoBtn');
+
+    const storageKey = 'codeStatsProjects';
+    const profileStorageKey = 'codeStatsProfile';
+    const dailyGamesKey = 'codeStatsDailyGames';
+
+    const state = {
+      files: [],
+      activeFile: null,
+      history: [],
+      savedProjects: [],
+      viewOrder: ['landing', 'dashboard', 'progress'],
+      currentViewIndex: 0,
+      profile: {
+        name: 'Dev V',
+        title: 'Front-end • Estudante',
+        stack: 'Java, JavaScript, SQL',
+        bio: 'Estudante em busca de novos desafios de código todos os dias.',
+        photo: '',
+        streak: 7
+      }
+    };
+
+    function escapeHtml(value) {
+      return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function buildExample() {
+      return `package model;
+
+public class Cliente {
+    private int id;
+    private String nome;
+
+    public Cliente(int id, String nome) {
+        this.id = id;
+        this.nome = nome;
+    }
+
+    public void mostrar() {
+        System.out.println("Cliente: " + nome);
+    }
+}`;
+    }
+
+    function detectErrors(content) {
+      const errors = [];
+      const lines = content.split(/\r?\n/);
+      let braceCount = 0;
+      let parenCount = 0;
+      let bracketCount = 0;
+
+      lines.forEach((line, index) => {
+        const trimmed = line.trim();
+        const lineNo = index + 1;
+
+        if (!trimmed || trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*') || trimmed.startsWith('*/')) {
+          return;
+        }
+
+        const openBraces = (line.match(/\{/g) || []).length;
+        const closeBraces = (line.match(/\}/g) || []).length;
+        const openParens = (line.match(/\(/g) || []).length;
+        const closeParens = (line.match(/\)/g) || []).length;
+        const openBrackets = (line.match(/\[/g) || []).length;
+        const closeBrackets = (line.match(/\]/g) || []).length;
+
+        braceCount += openBraces - closeBraces;
+        parenCount += openParens - closeParens;
+        bracketCount += openBrackets - closeBrackets;
+
+        if (trimmed.endsWith(';') === false && trimmed.endsWith('{') === false && trimmed.endsWith('}') === false && !trimmed.startsWith('if') && !trimmed.startsWith('for') && !trimmed.startsWith('while') && !trimmed.startsWith('return') && !trimmed.startsWith('else') && !trimmed.startsWith('catch') && !trimmed.startsWith('public') && !trimmed.startsWith('private') && !trimmed.startsWith('package') && !trimmed.startsWith('import') && !trimmed.startsWith('class') && !trimmed.startsWith('interface') && !trimmed.startsWith('enum')) {
+          if (/=|\+|\-|\*|\/|\.|\bnew\b/.test(trimmed) || /\bprintln\b/.test(trimmed)) {
+            errors.push({ line: lineNo, message: 'Possível ponto e vírgula ou estrutura incompleta.' });
+          }
+        }
+
+        if (/\bclass\b/.test(trimmed) && !trimmed.includes('{') && index < lines.length - 1 && !lines[index + 1].trim().startsWith('{')) {
+          errors.push({ line: lineNo, message: 'Classe declarada sem abertura de bloco.' });
+        }
+      });
+
+      if (braceCount !== 0) {
+        errors.push({ line: lines.length, message: 'Quantidade de chaves inconsistente. Verifique abertura/fechamento de blocos.' });
+      }
+
+      if (parenCount !== 0) {
+        errors.push({ line: lines.length, message: 'Parênteses desalinhados. Verifique chamadas e condicionais.' });
+      }
+
+      if (bracketCount !== 0) {
+        errors.push({ line: lines.length, message: 'Colchetes desalinhados. Verifique arrays e acessos.' });
+      }
+
+      return errors.filter((item, index, arr) => arr.findIndex((e) => e.line === item.line && e.message === item.message) === index);
+    }
+
+    function renderCode(content, errors) {
+      const viewer = document.getElementById('codeViewer');
+      const lines = content.split(/\r?\n/);
+      const errorMap = new Map(errors.map((error) => [error.line, error.message]));
+
+      viewer.innerHTML = lines.map((line, index) => {
+        const lineNumber = index + 1;
+        const hasError = errorMap.has(lineNumber);
+        return `
+          <div class="code-row ${hasError ? 'error' : ''}">
+            <div class="line-no">${lineNumber}</div>
+            <div class="line-code">${escapeHtml(line || ' ')}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderStats(file) {
+      const totalChars = file.content.length;
+      const lineCount = file.content.split(/\r?\n/).length;
+
+      document.getElementById('totalFiles').textContent = String(state.files.length);
+      document.getElementById('charTotal').textContent = String(totalChars);
+      document.getElementById('lineCount').textContent = String(lineCount);
+    }
+
+    function renderSidebar() {
+      const list = document.getElementById('fileList');
+      list.innerHTML = state.files.map((file) => `
+        <li class="file-item ${file.name === state.activeFile?.name ? 'active' : ''}">
+          <button data-name="${file.name}">
+            <div class="file-top">
+              <span class="file-name">${file.name}</span>
+              <span class="file-tag ${file.type || ''}">${file.type || 'FILE'}</span>
+            </div>
+            <div class="file-meta">
+              <span>${file.content.length} chars</span>
+              <span>${new Date(file.updatedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit'})}</span>
+            </div>
+          </button>
+        </li>
+      `).join('');
+
+      list.querySelectorAll('button').forEach((button) => {
+        button.addEventListener('click', () => {
+          const file = state.files.find((item) => item.name === button.dataset.name);
+          if (file) {
+            state.activeFile = file;
+            renderDashboard();
+          }
+        });
+      });
+    }
+
+    function saveProjects() {
+      localStorage.setItem(storageKey, JSON.stringify(state.savedProjects));
+    }
+
+    function loadSavedProjects() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        return Array.isArray(saved) ? saved : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function readProfile() {
+      try {
+        const profile = JSON.parse(localStorage.getItem(profileStorageKey) || '{}');
+        state.profile = {
+          name: profile.name && profile.name.trim() ? profile.name.trim() : 'Dev V',
+          title: profile.title && profile.title.trim() ? profile.title.trim() : 'Front-end • Estudante',
+          stack: profile.stack && profile.stack.trim() ? profile.stack.trim() : 'Java, JavaScript, SQL',
+          bio: profile.bio && profile.bio.trim() ? profile.bio.trim() : 'Estudante em busca de novos desafios de código todos os dias.',
+          photo: profile.photo || '',
+          streak: Number(profile.streak) || 7
+        };
+      } catch (error) {
+        state.profile = {
+          name: 'Dev V',
+          title: 'Front-end • Estudante',
+          stack: 'Java, JavaScript, SQL',
+          bio: 'Estudante em busca de novos desafios de código todos os dias.',
+          photo: '',
+          streak: 7
+        };
+      }
+      return state.profile;
+    }
+
+    function saveProfile() {
+      localStorage.setItem(profileStorageKey, JSON.stringify(state.profile));
+      renderProfile();
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+
+      const container = document.getElementById('toastContainer');
+      if (container) {
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.remove();
+        }, 2600);
+      }
+    }
+
+    function renderProfile() {
+      const profile = state.profile;
+      const name = profile.name || 'Dev V';
+      const title = profile.title || 'Front-end • Estudante';
+      const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0].toUpperCase()).join('') || 'DV';
+
+      const nameEl = document.getElementById('profileDisplayName');
+      const titleEl = document.getElementById('profileDisplayTitle');
+      const avatarEl = document.getElementById('profileAvatar');
+      const nameInputEl = document.getElementById('profileNameInput');
+      const titleInputEl = document.getElementById('profileTitleInput');
+      const stackInputEl = document.getElementById('profileStackInput');
+      const bioInputEl = document.getElementById('profileBioInput');
+
+      if (nameEl) nameEl.textContent = name;
+      if (titleEl) titleEl.textContent = title;
+      if (avatarEl) {
+        avatarEl.innerHTML = profile.photo ? `<img src="${profile.photo}" alt="Foto de perfil de ${escapeHtml(name)}" />` : initials;
+      }
+      if (nameInputEl) nameInputEl.value = name;
+      if (titleInputEl) titleInputEl.value = title;
+      if (stackInputEl) stackInputEl.value = profile.stack || 'Java, JavaScript, SQL';
+      if (bioInputEl) bioInputEl.value = profile.bio || 'Estudante em busca de novos desafios de código todos os dias.';
+      updateProfileSummary();
+      updateProjectOwnerLabel();
+    }
+
+    function updateProjectOwnerLabel() {
+      const ownerName = state.profile.name || 'Dev V';
+      const projectHeader = document.getElementById('projectOwnerHeader');
+      const projectSubtitle = document.getElementById('projectOwnerSubtitle');
+
+      if (projectHeader) {
+        projectHeader.textContent = `${ownerName} • Dashboard de análise`;
+      }
+
+      if (projectSubtitle) {
+        projectSubtitle.textContent = `Perfil: ${ownerName} • Projeto salvo, arquivos e código em foco`;
+      }
+    }
+
+    function renderSavedProjects() {
+      const list = document.getElementById('savedProjectsList');
+      if (!list) return;
+
+      if (!state.savedProjects.length) {
+        list.innerHTML = '<li class="saved-project-item"><button class="saved-project-button" type="button"><strong>Nenhum projeto salvo</strong><span>Selecione uma pasta para salvar o projeto.</span></button></li>';
+        return;
+      }
+
+      list.innerHTML = state.savedProjects.map((project) => `
+        <li class="saved-project-item">
+          <div class="saved-project-row">
+            <button class="saved-project-button" type="button" data-project="${project.name}">
+              <strong>${project.name}</strong>
+              <span>${project.ownerName || state.profile.name || 'Dev V'} • ${project.files.length} arquivos</span>
+            </button>
+            <button class="delete-project-btn" type="button" data-delete-project="${project.name}" aria-label="Excluir projeto ${project.name}">X</button>
+          </div>
+        </li>
+      `).join('');
+
+      list.querySelectorAll('[data-project]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const project = state.savedProjects.find((item) => item.name === button.dataset.project);
+          if (project) loadProjectFromSaved(project);
+        });
+      });
+
+      list.querySelectorAll('[data-delete-project]').forEach((button) => {
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const projectName = button.dataset.deleteProject;
+          deleteProject(projectName);
+        });
+      });
+    }
+
+    function renderDashboard() {
+      const file = state.activeFile || state.files[0];
+      if (!file) return;
+
+      renderCode(file.content, []);
+      renderStats(file);
+      document.getElementById('selectedFileName').textContent = file.name;
+      document.getElementById('lastUpdated').textContent = 'Atualizado às ' + new Date(file.updatedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      renderSidebar();
+    }
+
+    function showView(viewName) {
+      const views = {
+        landing: landingView,
+        dashboard: dashboardView,
+        progress: progressView
+      };
+
+      Object.entries(views).forEach(([key, element]) => {
+        const isVisible = key === viewName;
+        element.classList.toggle('hidden', !isVisible);
+      });
+
+      const index = state.viewOrder.indexOf(viewName);
+      if (index >= 0) {
+        state.currentViewIndex = index;
+      }
+    }
+
+    function goToPreviousView() {
+      const nextIndex = Math.max(0, state.currentViewIndex - 1);
+      const nextView = state.viewOrder[nextIndex];
+      if (nextView) {
+        showView(nextView);
+      }
+    }
+
+    function goToNextView() {
+      const nextIndex = Math.min(state.viewOrder.length - 1, state.currentViewIndex + 1);
+      const nextView = state.viewOrder[nextIndex];
+      if (nextView) {
+        showView(nextView);
+      }
+    }
+
+    function openDashboard(content, name = 'arquivo-upload.txt') {
+      const type = name.endsWith('.java') ? 'JAVA' : name.endsWith('.sql') ? 'SQL' : 'FILE';
+      state.files = [{
+        name,
+        type,
+        content,
+        updatedAt: Date.now()
+      }];
+      state.activeFile = state.files[0];
+      state.history = [{ time: Date.now(), length: content.length }];
+      landingView.classList.add('hidden');
+      dashboardView.classList.remove('hidden');
+      renderDashboard();
+    }
+
+    function loadProjectFromSaved(project) {
+      if (!project || !project.files || !project.files.length) return;
+      state.files = project.files;
+      state.activeFile = project.files[0];
+      state.history = project.files.map((file) => ({ time: file.updatedAt || Date.now(), length: file.content.length }));
+      landingView.classList.add('hidden');
+      dashboardView.classList.remove('hidden');
+      renderDashboard();
+    }
+
+    function readFilesFromFolder(fileList) {
+      const files = Array.from(fileList || []);
+      if (!files.length) {
+        alert('Selecione a pasta do projeto antes de continuar.');
+        return;
+      }
+
+      const filteredFiles = files.filter((file) => file && file.name && !file.name.startsWith('.'));
+      if (!filteredFiles.length) {
+        alert('A pasta selecionada não contém arquivos válidos para análise.');
+        return;
+      }
+
+      const readPromises = filteredFiles.map((file) => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve({
+            name: file.name,
+            type: file.name.endsWith('.java') ? 'JAVA' : file.name.endsWith('.sql') ? 'SQL' : 'FILE',
+            content: String(reader.result || ''),
+            updatedAt: Date.now()
+          });
+        };
+        reader.onerror = () => resolve(null);
+        reader.readAsText(file);
+      }));
+
+      Promise.all(readPromises).then((items) => {
+        const validItems = items.filter(Boolean);
+        if (!validItems.length) {
+          alert('Não foi possível ler os arquivos da pasta selecionada.');
+          return;
+        }
+
+        const projectName = fileList[0]?.webkitRelativePath ? fileList[0].webkitRelativePath.split('/')[0] : 'Projeto';
+
+        state.savedProjects = loadSavedProjects();
+        const projectIndex = state.savedProjects.findIndex((project) => project.name === projectName);
+        if (projectIndex >= 0) {
+          state.savedProjects.splice(projectIndex, 1);
+        }
+
+        const projectRecord = {
+          name: projectName,
+          ownerName: state.profile.name || 'Dev V',
+          files: validItems,
+          savedAt: Date.now()
+        };
+
+        state.savedProjects.unshift(projectRecord);
+        saveProjects();
+        renderSavedProjects();
+
+        state.files = validItems;
+        state.activeFile = validItems[0];
+        state.history = validItems.map((item) => ({ time: Date.now(), length: item.content.length }));
+        landingView.classList.add('hidden');
+        dashboardView.classList.remove('hidden');
+        renderDashboard();
+      });
+    }
+
+    openDashboardBtn.addEventListener('click', () => {
+      const value = textarea.value.trim();
+      if (!value) {
+        alert('Cole o conteúdo do arquivo antes de abrir o dashboard.');
+        return;
+      }
+      openDashboard(value, 'arquivo-copiado.txt');
+    });
+
+    loadExampleBtn.addEventListener('click', () => {
+      textarea.value = buildExample();
+    });
+
+    backToInputBtn.addEventListener('click', () => {
+      dashboardView.classList.add('hidden');
+      landingView.classList.remove('hidden');
+      renderSavedProjects();
+    });
+
+    folderInput.addEventListener('change', (event) => {
+      const selected = event.target.files;
+      if (selected && selected.length) {
+        readFilesFromFolder(selected);
+      }
+    });
+
+    const challengeCatalog = {
+      iniciante: {
+        name: 'Iniciante',
+        badge: 'Fácil',
+        items: ['Variáveis', 'Condicionais', 'Loops', 'Funções'],
+        description: 'Instrução: escreva uma função que receba dois números e retorne a soma deles. Teste com valores positivos, negativos e zero.',
+        starter: `// escreva sua solução aqui
+`,
+        functionName: 'somar',
+        tests: [
+          { args: [2, 3], expected: 5 },
+          { args: [4, 1], expected: 5 },
+          { args: [-2, 2], expected: 0 }
+        ]
+      },
+      intermediario: {
+        name: 'Intermediário',
+        badge: 'Médio',
+        items: ['Arrays', 'Strings', 'POO', 'Arquivos'],
+        description: 'Instrução: escreva uma função que receba uma lista de números e retorne o maior valor presente nela.',
+        starter: `// escreva sua solução aqui
+`,
+        functionName: 'maiorNumero',
+        tests: [
+          { args: [[3, 8, 1, 6]], expected: 8 },
+          { args: [[10, 4, 9]], expected: 10 },
+          { args: [[-2, -5, -1]], expected: -1 }
+        ]
+      },
+      avancado: {
+        name: 'Avançado',
+        badge: 'Difícil',
+        items: ['Algoritmos', 'MVC', 'Banco', 'Lógica'],
+        description: 'Instrução: escreva uma função que receba uma lista de números e retorne apenas os valores pares em ordem original.',
+        starter: `// escreva sua solução aqui
+`,
+        functionName: 'filtrarPares',
+        tests: [
+          { args: [[1, 2, 3, 4, 5, 6]], expected: [2, 4, 6] },
+          { args: [[7, 9, 11]], expected: [] },
+          { args: [[0, 2, 8]], expected: [0, 2, 8] }
+        ]
+      },
+      logica: {
+        name: 'Lógica',
+        badge: 'Fácil',
+        items: ['Condicionais', 'Comparações', 'Regras', 'Testes'],
+        description: 'Instrução: escreva uma função que retorne verdadeiro quando a palavra for um palíndromo e falso quando não for.',
+        starter: `// escreva sua solução aqui
+`,
+        functionName: 'ehPalindromo',
+        tests: [
+          { args: ['arara'], expected: true },
+          { args: ['casa'], expected: false },
+          { args: ['ovo'], expected: true }
+        ]
+      },
+      strings: {
+        name: 'Strings',
+        badge: 'Médio',
+        items: ['Texto', 'Busca', 'Lista', 'Manipulação'],
+        description: 'Instrução: escreva uma função que conte quantas letras "a" existem em uma frase.',
+        starter: `// escreva sua solução aqui
+`,
+        functionName: 'contarA',
+        tests: [
+          { args: ['banana'], expected: 3 },
+          { args: ['casa'], expected: 1 },
+          { args: ['java'], expected: 0 }
+        ]
+      },
+      algoritmos: {
+        name: 'Algoritmos',
+        badge: 'Difícil',
+        items: ['Ordenação', 'Busca', 'Semântica', 'Otimização'],
+        description: 'Instrução: escreva uma função que receba uma lista de números e retorne os valores em ordem crescente.',
+        starter: `// escreva sua solução aqui
+`,
+        functionName: 'ordenar',
+        tests: [
+          { args: [[5, 2, 9, 1]], expected: [1, 2, 5, 9] },
+          { args: [[8, 3, 3, 1]], expected: [1, 3, 3, 8] },
+          { args: [[0, -2, 4]], expected: [-2, 0, 4] }
+        ]
+      }
+    };
+
+    function hashString(value) {
+      let hash = 0;
+      for (let index = 0; index < value.length; index += 1) {
+        hash = (hash << 5) - hash + value.charCodeAt(index);
+        hash |= 0;
+      }
+      return Math.abs(hash);
+    }
+
+    function createSeededRandom(seed) {
+      let value = Math.abs(seed) % 2147483647;
+      if (value === 0) {
+        value = 1;
+      }
+
+      return function next() {
+        value = (value * 16807) % 2147483647;
+        return (value - 1) / 2147483646;
+      };
+    }
+
+    function createDailyGameSet() {
+      const todayKey = new Date().toISOString().slice(0, 10);
+      const entries = Object.entries(challengeCatalog);
+      const random = createSeededRandom(hashString(todayKey));
+      const shuffled = [...entries];
+
+      for (let index = shuffled.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(random() * (index + 1));
+        [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+      }
+
+      const randomDaily = Object.fromEntries(shuffled.slice(0, 3));
+      localStorage.setItem(dailyGamesKey, JSON.stringify({ date: todayKey, levels: Object.keys(randomDaily) }));
+      return randomDaily;
+    }
+
+    function getDailyGameSet() {
+      const todayKey = new Date().toISOString().slice(0, 10);
+      const saved = JSON.parse(localStorage.getItem(dailyGamesKey) || 'null');
+
+      if (saved && saved.date === todayKey && Array.isArray(saved.levels) && saved.levels.length) {
+        return Object.fromEntries(saved.levels.map((key) => [key, challengeCatalog[key]]).filter(([, level]) => level));
+      }
+
+      return createDailyGameSet();
+    }
+
+    const stateGame = {
+      currentLevel: null,
+      currentSolution: null
+    };
+
+    function renderLevelMenu() {
+      const container = document.getElementById('levelGrid');
+      if (!container) return;
+
+      const dailyLevels = getDailyGameSet();
+      container.innerHTML = Object.entries(dailyLevels).map(([key, level]) => `
+        <div class="level-card">
+          <div class="level-top">
+            <span class="level-name">${level.name}</span>
+            <span class="level-badge">${level.badge}</span>
+          </div>
+          <ul>
+            ${level.items.map((item) => `<li>${item}</li>`).join('')}
+          </ul>
+          <button type="button" data-level="${key}">Começar</button>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('[data-level]').forEach((button) => {
+        button.addEventListener('click', () => startChallenge(button.dataset.level));
+      });
+    }
+
+    function formatChallengeResult(level, passed, details) {
+      const stateText = passed ? '✅ Desafio concluído!' : '⚠️ Ainda não está certo.';
+      return `${stateText}\n${details}`;
+    }
+
+    function startChallenge(levelKey) {
+      const level = getDailyGameSet()[levelKey] || challengeCatalog[levelKey];
+      if (!level) return;
+
+      stateGame.currentLevel = levelKey;
+      document.getElementById('challengePanel').classList.remove('hidden');
+      document.getElementById('challengeTitle').textContent = `${level.name} • ${level.badge}`;
+      document.getElementById('challengeDescription').textContent = level.description;
+      document.getElementById('challengeCode').value = level.starter;
+      document.getElementById('challengeResult').textContent = 'Digite seu código e execute para validar.';
+      updateProfileSummary();
+    }
+
+    function runChallengeCode() {
+      const levelKey = stateGame.currentLevel;
+      const level = getDailyGameSet()[levelKey] || challengeCatalog[levelKey];
+      const codeInput = document.getElementById('challengeCode');
+      const resultBox = document.getElementById('challengeResult');
+
+      if (!level || !codeInput) {
+        return;
+      }
+
+      const source = codeInput.value.trim();
+      if (!source) {
+        resultBox.textContent = 'Escreva o código antes de executar.';
+        return;
+      }
+
+      try {
+        const wrapper = new Function(`
+          ${source};
+          return ${level.functionName};
+        `);
+        const fn = wrapper();
+
+        if (typeof fn !== 'function') {
+          resultBox.textContent = `Sua solução precisa declarar a função ${level.functionName}.`;
+          return;
+        }
+
+        const tests = level.tests.map((test) => {
+          const actual = fn(...test.args);
+          const passed = JSON.stringify(actual) === JSON.stringify(test.expected);
+          return { passed, actual, expected: test.expected };
+        });
+
+        const failed = tests.find((entry) => !entry.passed);
+        if (!failed) {
+          resultBox.textContent = formatChallengeResult(level, true, 'Todos os testes passaram. Excelente trabalho!');
+          return;
+        }
+
+        resultBox.textContent = formatChallengeResult(level, false, `Teste falhou. Esperado ${JSON.stringify(failed.expected)} mas recebeu ${JSON.stringify(failed.actual)}.`);
+      } catch (error) {
+        resultBox.textContent = `Erro no código: ${error.message}`;
+      }
+    }
+
+    function extractRepoInfo(url) {
+      const normalized = url.trim().replace(/\.git$/i, '').replace(/\/$/, '');
+      const patterns = [
+        /https?:\/\/github\.com\/([^/]+)\/([^/]+)$/i,
+        /git@github\.com:([^/]+)\/([^/]+)$/i,
+        /^([^/]+)\/([^/]+)$/i
+      ];
+
+      for (const pattern of patterns) {
+        const match = normalized.match(pattern);
+        if (match) {
+          return { owner: match[1], name: match[2] };
+        }
+      }
+
+      return null;
+    }
+
+    async function cloneGitHubRepository(url) {
+      const repoInfo = extractRepoInfo(url);
+      if (!repoInfo) {
+        alert('Use uma URL válida do GitHub, como https://github.com/usuario/repositorio');
+        return;
+      }
+
+      try {
+        const repoMeta = await fetch(`https://api.github.com/repos/${repoInfo.owner}/${repoInfo.name}`).then((response) => {
+          if (!response.ok) {
+            throw new Error('Repositório não encontrado ou sem acesso público.');
+          }
+          return response.json();
+        });
+
+        const defaultBranch = repoMeta.default_branch || 'main';
+        const treeResponse = await fetch(`https://api.github.com/repos/${repoInfo.owner}/${repoInfo.name}/git/trees/${defaultBranch}?recursive=1`);
+        const treeData = await treeResponse.json();
+
+        if (!treeData.tree || !treeData.tree.length) {
+          throw new Error('Este repositório não contém arquivos para abrir.');
+        }
+
+        const files = treeData.tree.filter((item) => item.type === 'blob' && !item.path.startsWith('.git'));
+        const selectedFiles = files.slice(0, 80);
+
+        const loadedFiles = [];
+        for (const file of selectedFiles) {
+          const encodedPath = encodeURIComponent(file.path);
+          const contentResponse = await fetch(`https://api.github.com/repos/${repoInfo.owner}/${repoInfo.name}/contents/${encodedPath}?ref=${defaultBranch}`);
+          const contentData = await contentResponse.json();
+
+          if (contentData && contentData.download_url) {
+            const raw = await fetch(contentData.download_url).then((response) => response.text());
+            loadedFiles.push({
+              name: file.path.split('/').pop(),
+              path: file.path,
+              type: file.path.endsWith('.java') ? 'JAVA' : file.path.endsWith('.sql') ? 'SQL' : 'FILE',
+              content: raw,
+              updatedAt: Date.now()
+            });
+          }
+        }
+
+        if (!loadedFiles.length) {
+          throw new Error('Não foi possível carregar os arquivos do repositório.');
+        }
+
+        const projectRecord = {
+          name: repoInfo.name,
+          ownerName: state.profile.name || 'Dev V',
+          files: loadedFiles,
+          savedAt: Date.now()
+        };
+
+        state.savedProjects = loadSavedProjects();
+        const currentIndex = state.savedProjects.findIndex((project) => project.name === repoInfo.name);
+        if (currentIndex >= 0) {
+          state.savedProjects.splice(currentIndex, 1);
+        }
+
+        state.savedProjects.unshift(projectRecord);
+        saveProjects();
+        renderSavedProjects();
+
+        state.files = loadedFiles;
+        state.activeFile = loadedFiles[0];
+        landingView.classList.add('hidden');
+        dashboardView.classList.remove('hidden');
+        renderDashboard();
+      } catch (error) {
+        alert(error.message || 'Não foi possível clonar este repositório.');
+      }
+    }
+
+    function updateProfileSummary() {
+      const savedCount = state.savedProjects.length;
+      const challengeCount = Object.keys(getDailyGameSet()).length;
+      const streak = Math.max(1, Math.min(99, (state.profile.streak || 7) + 0));
+
+      const profileProjectsEl = document.getElementById('profileProjects');
+      const profileChallengesEl = document.getElementById('profileChallenges');
+      const profileStreakEl = document.getElementById('profileStreak');
+      const progressProjectsEl = document.getElementById('progressProjects');
+      const progressChallengesEl = document.getElementById('progressChallenges');
+      const progressStreakEl = document.getElementById('progressStreak');
+
+      if (profileProjectsEl) profileProjectsEl.textContent = String(savedCount);
+      if (profileChallengesEl) profileChallengesEl.textContent = String(challengeCount);
+      if (profileStreakEl) profileStreakEl.textContent = String(streak);
+      if (progressProjectsEl) progressProjectsEl.textContent = String(savedCount);
+      if (progressChallengesEl) progressChallengesEl.textContent = String(challengeCount);
+      if (progressStreakEl) progressStreakEl.textContent = String(streak);
+    }
+
+    function deleteProject(projectName) {
+      if (!projectName) return;
+      const confirmed = window.confirm(`Deseja excluir o projeto "${projectName}"?`);
+      if (!confirmed) return;
+
+      state.savedProjects = state.savedProjects.filter((project) => project.name !== projectName);
+      saveProjects();
+      renderSavedProjects();
+      updateProfileSummary();
+      showToast('Projeto removido com sucesso.', 'success');
+    }
+
+    function initSavedProjects() {
+      state.profile = readProfile();
+      state.savedProjects = loadSavedProjects();
+      renderSavedProjects();
+      renderProfile();
+      renderLevelMenu();
+      updateProfileSummary();
+      showView('landing');
+    }
+
+    document.getElementById('openProfileEditorBtn').addEventListener('click', () => {
+      document.getElementById('profileEditor').classList.remove('hidden');
+      showToast('Aba de perfil aberta.', 'success');
+    });
+
+    document.getElementById('closeProfileEditorBtn').addEventListener('click', () => {
+      document.getElementById('profileEditor').classList.add('hidden');
+      showToast('Perfil fechado.', 'success');
+    });
+
+    document.getElementById('saveProfileBtn').addEventListener('click', () => {
+      const nameInput = document.getElementById('profileNameInput');
+      const titleInput = document.getElementById('profileTitleInput');
+      const stackInput = document.getElementById('profileStackInput');
+      const bioInput = document.getElementById('profileBioInput');
+
+      state.profile.name = (nameInput?.value || '').trim() || 'Dev V';
+      state.profile.title = (titleInput?.value || '').trim() || 'Front-end • Estudante';
+      state.profile.stack = (stackInput?.value || '').trim() || 'Java, JavaScript, SQL';
+      state.profile.bio = (bioInput?.value || '').trim() || 'Estudante em busca de novos desafios de código todos os dias.';
+      saveProfile();
+      showToast('Perfil salvo com sucesso!', 'success');
+    });
+
+    document.getElementById('profilePhotoInput').addEventListener('change', (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        state.profile.photo = String(reader.result || '');
+        saveProfile();
+        showToast('Foto de perfil atualizada.', 'success');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('backToHomeBtn').addEventListener('click', () => {
+      document.getElementById('profileEditor').classList.add('hidden');
+      showView('landing');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('openProgressBtn').addEventListener('click', () => {
+      showView('progress');
+      showToast('Aba de progresso aberta.', 'success');
+    });
+
+    document.getElementById('profileProgressBtn').addEventListener('click', () => {
+      showView('progress');
+      showToast('Aba de progresso aberta.', 'success');
+    });
+
+    document.getElementById('progressBackHomeBtn').addEventListener('click', () => {
+      showView('landing');
+      showToast('Voltando ao início.', 'success');
+    });
+
+    document.getElementById('progressOpenDashboardBtn').addEventListener('click', () => {
+      showView('dashboard');
+      showToast('Dashboard aberto.', 'success');
+    });
+
+    cloneRepoBtn.addEventListener('click', () => {
+      const repoUrl = repoInput.value.trim();
+      if (!repoUrl) {
+        alert('Cole a URL do repositório GitHub antes de clonar.');
+        return;
+      }
+      cloneGitHubRepository(repoUrl);
+    });
+
+    document.getElementById('backToLevelsBtn').addEventListener('click', () => {
+      document.getElementById('challengePanel').classList.add('hidden');
+      document.getElementById('levelGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    document.getElementById('runChallengeBtn').addEventListener('click', runChallengeCode);
+
+    document.addEventListener('keydown', (event) => {
+      const isTyping = ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName);
+      if (isTyping) return;
+
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        goToPreviousView();
+      }
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        goToNextView();
+      }
+    });
+
+    textarea.value = buildExample();
+    initSavedProjects();
+  </script>
+</body>
+</html>
